@@ -10,7 +10,6 @@ use Storage;
 use Illuminate\Support\Facades\Mail;
 use App\Notifications\NewOrderNotification;
 use App\Mail\NewOrderMail;
-use Maestroerror\PHPHeicToJpg\HeicToJpeg;
 
 class OrderApiController extends Controller
 {
@@ -88,24 +87,8 @@ class OrderApiController extends Controller
                     Storage::disk('public')->makeDirectory($orderFolder);
                 }
 
-                $fileName = '';
-
-                if ($imageFile->getClientOriginalExtension() == 'heif') {
-                    $heifFilePath = $imageFile->getRealPath();
-                    $jpgFileName = uniqid() . '.jpg';
-                    $jpgFilePath = storage_path('app/public/' . $orderFolder . '/' . $jpgFileName);
-
-                    HeicToJpeg::convert($heifFilePath)->saveAs($jpgFilePath);
-                    $fileName = pathinfo($jpgFilePath, PATHINFO_BASENAME);
-                } else {
-                    $fileName = uniqid() . '.' . $imageFile->getClientOriginalExtension();
-                }                
-
+                $fileName = uniqid() . '.' . $imageFile->getClientOriginalExtension();
                 $imagePath = $imageFile->storeAs($orderFolder, $fileName, 'public');
-
-                // $storagePath = storage_path('app/public');
-
-                // $fullImagePath = $storagePath . '/' . $imagePath;
 
                 $orderPhoto = new OrderPhoto([
                     'order_id' => $order->id,
@@ -126,7 +109,7 @@ class OrderApiController extends Controller
         //     'order_photos' => $orderPhotos,
         // ], 201); // Răspuns "Created" (HTTP 201)
 
-        // Mail::to('broatec.mihai@gmail.com')->send(new NewOrderMail($order));
+         Mail::to('ferencziemil@gmail.com')->send(new NewOrderMail($order));
 
         return response()->json(['message' => 'The order success created'], 201);
     }
@@ -164,7 +147,7 @@ class OrderApiController extends Controller
             $photoPath = 'public/orders/' . $order_id . '/' . $photo->image;
 
             if (Storage::exists($photoPath)) {
-                
+
                 Storage::delete($photoPath);
             }
 
