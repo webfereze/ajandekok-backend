@@ -52,7 +52,7 @@ class CanvasController extends Controller
 
     public function getData()
     {
-        $canvas = Canvas::all();
+        $canvas = Canvas::where('active', 1)->get();
 
         return response()->json($canvas);
     }
