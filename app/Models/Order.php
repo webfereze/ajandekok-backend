@@ -16,6 +16,7 @@ class Order extends Model
         'last_name',
         'email',
         'address',
+        'number',
         'country',
         'city',
         'zip_code',
@@ -24,6 +25,7 @@ class Order extends Model
         'status',
         'details',
         'shipping',
+        'coupon',
     ];
 
     public function orderPhotos()

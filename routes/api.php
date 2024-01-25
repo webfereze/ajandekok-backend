@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\OrderApiController;
+use App\Http\Controllers\CouponController;
 use App\Models\Order;
 
 /*
@@ -29,6 +30,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/orders', [OrderApiController::class, 'store']);
 Route::get('canvas', [CanvasController::class, 'getData']);
 
+Route::post('/coupons/check-existence', [CouponController::class, 'checkCouponExists']);
+
 // Protected routes
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('orders', [OrderApiController::class, 'index']);
@@ -39,4 +42,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/orders/{order_id}', [OrderApiController::class, 'updateStatus']);
     Route::delete('/orders/{order_id}', [OrderApiController::class, 'deleteOrder']);
     Route::put('/canvas/{id}/status', [CanvasController::class, 'updateStatus']);
+
+    Route::get('coupons', [CouponController::class, 'getData'])->middleware('admin');
+    Route::post('coupons', [CouponController::class, 'create'])->middleware('admin');
+    Route::put('coupons/{id}', [CouponController::class, 'edit'])->middleware('admin');
+    Route::delete('coupons/{id}', [CouponController::class, 'delete'])->middleware('admin');
 });

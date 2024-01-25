@@ -15,6 +15,7 @@ class CanvasController extends Controller
             $canvas = new Canvas;
             $canvas->dimension = $item['dimension'];
             $canvas->price = $item['price'];
+            $canvas->deal = $item['deal'];
             $canvas->save();
         }
 
@@ -30,6 +31,7 @@ class CanvasController extends Controller
 
         $canvas->dimension = $request->input('dimension');
         $canvas->price = $request->input('price');
+        $canvas->deal = $request->input('deal');
         $canvas->save();
         $canvas = Canvas::all();
 

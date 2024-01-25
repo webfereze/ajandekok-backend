@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderPhoto;
 use App\Models\Canvas;
+use App\Models\Coupon;
 use Storage;
 use Illuminate\Support\Facades\Mail;
 use App\Notifications\NewOrderNotification;
@@ -37,6 +38,7 @@ class OrderApiController extends Controller
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'address' => 'required|string|max:255',
+            'number' => 'required|string|max:20',
             'country' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'zip_code' => 'required|string|max:20',
@@ -58,21 +60,44 @@ class OrderApiController extends Controller
             }
         }
 
+        if($request->coupon_id){
+            $coupon = Coupon::find($request->coupon_id);
+            if($coupon->active == 0 || $coupon->qty <= 0){
+                return response()->json(['message' => 'Coupon not found or inactive'], 404);
+            }
+
+            $totalPrice = $totalPrice - ($totalPrice * $coupon->value / 100);
+        }
+
+        if($request->shipping == 'curier'){
+            $totalPrice += 20;
+        }
+
         $order = new Order([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
             'address' => $request->address,
+            'number' => $request->number,
             'country' => $request->country,
             'city' => $request->city,
             'zip_code' => $request->zip_code,
             'phone' => $request->phone,
             'total_price' => $totalPrice,
             'details' => $request->details ?? "",
-            'shipping' => $request->shipping
+            'shipping' => $request->shipping,
+            'coupon' => $request->coupon_id ? $coupon->name : null,
         ]);
 
         $order->save();
+
+        if($request->coupon_id && $coupon->active == 1 && $coupon->qty > 0){
+            if($coupon->qty == 0 || $coupon->qty-1 == 0){
+                $coupon->active = 0;
+            }
+            $coupon->qty = $coupon->qty - 1;
+            $coupon->save();
+        }
 
         $orderPhotos = [];
         if($request->images){
@@ -109,7 +134,7 @@ class OrderApiController extends Controller
         //     'order_photos' => $orderPhotos,
         // ], 201); // Răspuns "Created" (HTTP 201)
 
-         Mail::to('ferencziemil@gmail.com')->send(new NewOrderMail($order));
+//         Mail::to('ferencziemil@gmail.com')->send(new NewOrderMail($order));
 
         return response()->json(['message' => 'The order success created'], 201);
     }

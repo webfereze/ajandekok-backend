@@ -47,7 +47,7 @@ class NewOrderNotification extends Notification
                     ->line('Detalii comandă:')
                     ->line('Id comandă: ' . $this->order->id)
                     ->line('Nume client: ' . $this->order->first_name . " " . $this->order->last_name)
-                    ->line('Adresa livrare: ' . $this->order->country . ", " . $this->order->city . ", " . $this->order->address . ", " . $this->order->phone)
+                    ->line('Adresa livrare: ' . $this->order->country . ", " . $this->order->city . ", " . $this->order->address . ", " . $this->order->number . "," . $this->order->phone)
                     ->line('Pret total: ' . $this->order->total_price)
                     ->action('Vizualizează comanda', url('/orders/' . $this->order->id));
     }
